@@ -111,7 +111,7 @@
       return h.judgeNumber(x, t.answer, [[W.NI / W.ocf, 'flip', 'That divides the wrong way round. Cash conversion = cash from operations ÷ net income.']], { tol: 0.01 * t.answer, otherMsg: `Cash conversion = ${m(W.ocf)} ÷ ${m(W.NI)}.` }); }
   }
   function helpText(t, lvl, h) {
-    if (t.id === 't1') return lvl === 1 ? 'Cash: count what fans paid this year. Revenue: ask whether the show has happened yet.' : `Cash = ${t.n.toLocaleString('en-US')} × ${m(t.p)} = ${m(t.cash)}. Revenue this year = $0, because the show is in March.`;
+    if (t.id === 't1') return lvl === 1 ? 'For cash, count what fans paid this year. For revenue, ask whether the show has happened yet.' : `Cash = ${t.n.toLocaleString('en-US')} × ${m(t.p)} = ${m(t.cash)}. Revenue this year = $0, because the show is in March.`;
     if (t.id === 't2') return lvl === 1 ? `Depreciation spreads the ${m(t.E)} cost evenly over ${t.life} years.` : `Depreciation = ${m(t.E)} ÷ ${t.life} = ${m(t.answer)}. Cash out this year = the full ${m(t.E)}, paid on January 2.`;
     if (t.id === 't3') { const line = (i) => `${ROWS3[i].label}: ${t.eff[i] > 0 ? '+' : '−'}${m(Math.abs(t.eff[i])).replace('−', '')}. ${ROWS3[i].why}`;
       return lvl === 1 ? line(1) : [1, 2, 3, 4].map(line).join('<br>') + `<br>Cash from operations = ${m(t.answer)}.`; }
@@ -123,7 +123,7 @@
     if (t.id === 't2') return `Profit falls by ${m(t.answer)} this year, but cash fell by the full ${m(t.E)} on day one. Next year the expense repeats with no cash going out at all.`;
     if (t.id === 't3') return `Cash from operations is ${m(t.answer)}, against net income of ${m(t.NI)}. This is the bridge at the top of every cash flow statement.`;
     if (t.id === 't4') return `Free cash flow is ${m(t.answer)}: what the owners could take out, or reinvest, after paying for equipment.`;
-    if (t.id === 't5') return `Venue ${t.decision.toUpperCase()} turns each dollar of profit into ${t.answer.toFixed(2)} dollars of operating cash. Same profit, very different businesses.`;
+    if (t.id === 't5') return `Venue ${t.decision.toUpperCase()} turns each dollar of profit into ${t.answer.toFixed(2)} dollars of operating cash. The two venues report the same profit, but they bring in very different amounts of cash.`;
   }
   function selfAnswer(t) {
     if (t.id === 't3') { const rows = []; for (let i = 1; i <= 4; i++) rows[i] = String(t.eff[i]); return { rows }; }
@@ -149,7 +149,7 @@
       { t: 'Take out the sales not yet paid', p: '$2,000 of the revenue is still owed by the office. It counts in profit but not in cash, so subtract it. (When customers owe you more, cash lags profit.)' },
       { t: 'That is cash from operations', p: '$2,950 + $50 − $2,000 = $1,000 of cash actually came in from running the truck.' },
       { t: 'Subtract what you spent on equipment', p: 'The $3,000 grill is <b>capital spending</b>: cash spent on things that last. Cash from operations minus capital spending is <b>free cash flow</b>: $1,000 − $3,000 = −$2,000.' },
-      { t: 'The lesson', p: 'The truck made a $2,950 profit and still has $2,000 less cash than it started with. Profit tells you whether the business works; cash tells you whether it can pay its bills this month.' },
+      { t: 'The lesson', p: 'The truck made a $2,950 profit and still has $2,000 less cash than it started with. Profit shows whether the truck earns more than it costs over time. Cash shows whether it can pay this month’s bills.' },
     ],
   };
 
