@@ -263,10 +263,11 @@
   }
 
   // one-question check
+  const optOrder = (q) => { const hs = (s) => { let x = 2166136261; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 16777619) >>> 0; } return x; }; return q.options.map((_, j) => j).sort((a, b) => hs(q.q + '|' + a) - hs(q.q + '|' + b)); };
   function showCheck(s) {
     const L = S.log[s.id], q = C.quiz[s.quiz]; const cur = L.choice != null ? Number(L.choice) : null;
     view.innerHTML = `${kicker(s.id)}<article class="memo" aria-labelledby="t">${memoHead(L.done)}<h2 id="t">${esc(q.title || 'Quick win')}</h2>
-      <form id="qf" novalidate><fieldset><legend>${esc(q.q)}</legend><div class="choices stack">${q.options.map((o, j) => `<label class="choice"><input type="radio" name="q" value="${j}" ${cur === j ? 'checked' : ''}><span>${esc(o)}</span></label>`).join('')}</div></fieldset>
+      <form id="qf" novalidate><fieldset><legend>${esc(q.q)}</legend><div class="choices stack">${optOrder(q).map((j) => `<label class="choice"><input type="radio" name="q" value="${j}" ${cur === j ? 'checked' : ''}><span>${esc(q.options[j])}</span></label>`).join('')}</div></fieldset>
       <div class="actions"><button class="btn" type="submit">Check</button><span class="attempts" id="att">${L.attempts ? 'Checks so far: ' + L.attempts : ''}</span></div>
       <div class="fb" id="fb" aria-live="polite"></div><div class="actions" id="nextRow" ${L.done ? '' : 'hidden'}><button class="btn" type="button" id="nextBtn">${nextLabel(s.id)}</button></div></form></article>`;
     $('#qf').addEventListener('submit', (e) => {
