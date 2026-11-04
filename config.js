@@ -27,6 +27,14 @@
         'Profit and cash are measured differently. Slow-paying customers and big equipment purchases can drain cash from a profitable company.',
         'It is perfectly legal and common, especially for fast-growing companies.',
         'Debt has nothing to do with it. The gap comes from the timing of collections and spending.'] },
+    { title: 'Exam-style question',
+      q: 'A company reports net income of $500,000. Depreciation was $80,000, accounts receivable rose by $30,000, and deferred revenue rose by $20,000. What is its cash from operations?',
+      options: ['$570,000', '$630,000', '$530,000', '$410,000'],
+      answer: 0,
+      why: ['Right. Start from $500,000, add back the $80,000 of depreciation, subtract the $30,000 rise in receivables, and add the $20,000 rise in deferred revenue. Questions on the exams look like this one.',
+        '$630,000 adds the rise in receivables. Customers owing more means that cash has not arrived yet, so subtract it.',
+        '$530,000 subtracts the rise in deferred revenue. Customers paid ahead, so that cash came in before the revenue. Add it.',
+        '$410,000 subtracts the depreciation. Depreciation lowered profit without using any cash, so add it back.'] },
   ];
   const STEPS = [
     { id: 'walk', label: 'Worked example', kind: 'walk' },
@@ -38,6 +46,7 @@
     { id: 't4', label: 'Free cash flow', kind: 'task' },
     { id: 'q3', label: 'Check 3', kind: 'check', quiz: 2 },
     { id: 't5', label: 'Two venues', kind: 'task' },
+    { id: 'q4', label: 'Exam-style question', kind: 'check', quiz: 3 },
     { id: 'note', label: 'Your note', kind: 'note' },
   ];
   const ROWS3 = [null, { key: 'dep', label: 'Depreciation', sign: 1, why: 'It lowered profit, but no cash left this year.' },
@@ -154,14 +163,14 @@
   };
 
   root.DESK = {
-    app: 'finan4-u2-cash-desk', version: 1, seedVersion: 1, salt: 'rize-finan4-u2-cash:5b81e3', points: 20,
+    app: 'finan4-u2-cash-desk', version: 2, seedVersion: 1, salt: 'rize-finan4-u2-cash:5b81e3', points: 20,
     storageKey: 'rize-finan4-u2-cash-v1', filePrefix: 'CashDesk',
     verifyUrl: 'https://rizecomputerscience.github.io/finan4-cash-desk/verify.html',
     story: { title: 'The Cash Desk', kicker: 'Corporate Finance, Unit 2', company: 'Loudhouse Live', team: 'Finance Team',
       from: 'Kirsten Sandoval', fromTitle: 'Controller',
       dek: 'You have joined the finance team at Loudhouse Live, a regional concert promoter. The business is profitable, but the owners keep asking why the bank balance does not match the profit. Kirsten Sandoval, the controller, wants you to find out.',
       whatBox: '<b>Profit and cash are not the same thing.</b> Profit counts a sale when it is earned and an expense when it is used up. Cash counts money only when it actually moves. A promoter that sells tickets months before a show can be flush with cash and not yet have earned a dollar of it.',
-      stepsLine: 'There are ten steps: a worked example, five problems with three one-question checks between them, and a short note to Kirsten.' },
+      stepsLine: 'There are eleven steps: a worked example, five problems with three one-question checks between them, one exam-style question, and a short note to Kirsten.' },
     steps: STEPS, quiz: QUIZ, walk: WALK, buildTasks, taskView, judgeTask, helpText, praise, selfAnswer, selfWrong,
     note: { title: 'A note for the owners', label: 'Your note to Kirsten', minWords: 30, receiptHeading: 'Note to the controller',
       prompt: 'Kirsten asks you to explain, for the owners, why a profitable promoter can have a bank balance that does not match its profit. Use at least two of the things you worked on today in your explanation.' },
