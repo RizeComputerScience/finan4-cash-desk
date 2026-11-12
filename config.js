@@ -1,262 +1,264 @@
-/* The Cash Desk: FINAN IV Unit 2 (cash is not profit). Config for lib/coursedev/desk-engine.
-   Names swept for reuse 2026-11-03 (case_reuse.py): Loudhouse Live, Kirsten Sandoval, both clean.
-   All numbers are fictional (Loudhouse Live is invented), so the desk has no citations and no `sources` box.
-   Rework 2026-11-06 (Samuel's 11/05 desk rules, design/course-principles.md): a worked example on every problem (engine `example`),
-   each question's field under that question (`parts`), round seeds, cells named in every formula, no tolerance sentences,
-   wrong answers diagnosed with the student's own numbers. seedVersion 2 and version 3, so saved progress and receipts from
-   earlier versions do not carry over. */
+/* The Cash Desk: FINAN IV Unit 2 (cash). Config for lib/coursedev/desk-engine.
+   Names swept for reuse 2026-11-03 (case_reuse.py): Loudhouse Live, Kirsten Sandoval, both clean. Every other business on the desk
+   is unnamed ("a comedy club", "the smaller promoter"), so nothing new needed a sweep. All numbers are fictional; no `sources` box.
+   Version 4 (2026-11-12), rebuilt to the Unit 9 pattern (process/standards/interactive-assignments.md rules 25 to 39;
+   u02/TEACHING-MAP.md; design/scope-2026-11-11.md):
+   - The reading teaches; the desk has no walkthrough of its own (rule 32).
+   - Every task states the problem first, then shows a worked example drawn as the SAME table the student fills, read-only, with a
+     different business and numbers (h.ladder, rule 29). A faded step gives most lines; the next step leaves every line blank.
+   - Depreciation (cost ÷ years) is a line inside the cash-from-operations table, not a step of its own.
+   - Cut from the desk: the walkthrough, the ticket-sales and sound-system steps (their ideas now sit inside the bridge and the
+     quick check), two of the three quick checks.
+   The previous version is in v2-archive/. seedVersion 3 and version 4: progress and receipts from v3 do not carry over. */
 (function (root) {
   'use strict';
   const QUIZ = [
-    { title: 'Quick win: when revenue counts',
-      q: 'A company sells a service. When does it record the revenue on its income statement?',
-      options: ['When it delivers the service and has earned the money', 'When the customer’s cash arrives', 'When the contract is signed', 'At the end of the year, all at once'],
-      answer: 0,
-      why: ['Right. Revenue is recorded when it is earned, which means when the service is delivered, whatever day the cash moves.',
-        'Cash and revenue can arrive at different times. Revenue waits until the service is delivered.',
-        'A signed contract is a promise, not revenue. Revenue is recorded when the service is delivered.',
-        'Revenue is recorded as it is earned through the year, not in one lump at year end.'] },
-    { title: 'Quick win: why depreciation gets added back',
-      q: 'To get from net income to cash from operations, why do we add depreciation back?',
-      options: ['It lowered profit, but no cash left the business this year for it', 'It is a tax refund', 'It is cash the company received from selling old equipment', 'It is added back only when the company has a loss'],
-      answer: 0,
-      why: ['Right. Depreciation spreads an old purchase over many years. The cash left when the equipment was bought, so this year’s depreciation is not cash going out.',
-        'Depreciation is not a refund. It is an expense that uses no cash this year.',
-        'Selling equipment is a separate cash flow. Depreciation is the yearly charge for equipment the company still owns.',
-        'It is added back whether the company makes a profit or a loss, because it never uses cash in the year it is charged.'] },
-    { title: 'Quick win: profitable and out of cash?',
-      q: 'Can a company report a profit and still run low on cash?',
-      options: ['Yes, if customers pay slowly or it spends heavily on equipment', 'No, profit always means cash came in', 'Only if it is breaking the law', 'Only if it has no debt'],
-      answer: 0,
-      why: ['Right. Profit counts sales when they are earned, and cash counts money when it moves. A growing company can be profitable and still short of cash.',
-        'Profit and cash are measured differently. Slow-paying customers and big equipment purchases can drain cash from a profitable company.',
-        'It is perfectly legal and common, especially for fast-growing companies.',
-        'Debt has nothing to do with it. The gap comes from the timing of collections and spending.'] },
+    { title: 'Quick check: paid in advance',
+      q: 'In August a theater sells $50,000 of season passes for shows from October to May. What happens in August?',
+      options: ['Cash and revenue both rise by $50,000', 'Revenue rises by $50,000, but cash does not change',
+        'Cash rises by $50,000, and so does deferred revenue. Revenue is recorded as the shows happen.', 'Nothing is recorded until the first show'],
+      answer: 2,
+      why: ['Revenue waits until the theater delivers the shows. The cash has arrived, so deferred revenue records what the theater still owes.',
+        'The cash has arrived in August. What waits is the revenue.',
+        'Right. Fans paid early, so cash came in before the revenue. That is why a rise in deferred revenue is added on the way to cash from operations.',
+        'The cash has arrived, so the theater records it now, with deferred revenue for the shows it still owes.'] },
     { title: 'Exam-style question',
-      q: 'A company reports net income of $500,000. Depreciation was $80,000, accounts receivable rose by $30,000, and deferred revenue rose by $20,000. What is its cash from operations?',
-      options: ['$570,000', '$630,000', '$530,000', '$410,000'],
-      answer: 0,
-      why: ['Right. Start from $500,000, add back the $80,000 of depreciation, subtract the $30,000 rise in receivables, and add the $20,000 rise in deferred revenue. Questions on the exams look like this one.',
-        '$630,000 adds the rise in receivables. Customers owing more means that cash has not arrived yet, so subtract it.',
-        '$530,000 subtracts the rise in deferred revenue. Customers paid ahead, so that cash came in before the revenue. Add it.',
-        '$410,000 subtracts the depreciation. Depreciation lowered profit without using any cash, so add it back.'] },
+      q: 'A company reports net income of $500,000. Depreciation was $80,000, accounts receivable fell by $30,000, and accounts payable rose by $20,000. What is its cash from operations?',
+      options: ['$570,000', '$630,000', '$590,000', '$470,000'],
+      answer: 1,
+      why: ['$570,000 subtracts the fall in receivables. Customers paid down what they owed, so that cash came in. Add it.',
+        'Right. $500,000 + $80,000 + $30,000 + $20,000 = $630,000. Exam questions look like this one.',
+        '$590,000 subtracts the rise in payables. The company has not paid those bills yet, so it kept the cash. Add it.',
+        '$470,000 subtracts depreciation. Depreciation lowered profit without using cash, so add it back.'] },
   ];
+
   const STEPS = [
-    { id: 'walk', label: 'Worked example', kind: 'walk' },
-    { id: 'q1', label: 'Check 1', kind: 'check', quiz: 0 },
-    { id: 't1', label: 'Ticket sales', kind: 'task' },
-    { id: 't2', label: 'The sound system', kind: 'task' },
-    { id: 'q2', label: 'Check 2', kind: 'check', quiz: 1 },
-    { id: 't3', label: 'Profit to cash', kind: 'task' },
-    { id: 't4', label: 'Free cash flow', kind: 'task' },
-    { id: 'q3', label: 'Check 3', kind: 'check', quiz: 2 },
-    { id: 't5', label: 'Two venues', kind: 'task' },
-    { id: 'q4', label: 'Exam-style question', kind: 'check', quiz: 3 },
+    { id: 'cfo1', label: 'Profit to cash', kind: 'task' },
+    { id: 'q1', label: 'Quick check', kind: 'check', quiz: 0 },
+    { id: 'cfo2', label: 'A fall and a rise', kind: 'task' },
+    { id: 'fcf1', label: 'Free cash flow', kind: 'task' },
+    { id: 'fcf2', label: 'Can it pay its loan?', kind: 'task' },
+    { id: 'cc1', label: 'Cash conversion', kind: 'task' },
+    { id: 'cc2', label: 'Two venues', kind: 'task' },
+    { id: 'q2', label: 'Exam-style question', kind: 'check', quiz: 1 },
     { id: 'note', label: 'Your note', kind: 'note' },
   ];
-  const ROWS3 = [null, { key: 'dep', label: 'Depreciation', sign: 1, why: 'It lowered profit, but no cash left this year.' },
-    { key: 'dr', label: 'Deferred revenue went up (tickets sold for future shows)', sign: 1, why: 'Fans paid cash for shows that have not happened yet, so cash came in before the revenue.' },
-    { key: 'ar', label: 'Accounts receivable went up (sponsors owe us more)', sign: -1, why: 'Revenue was recorded, but the sponsors have not paid yet, so that cash has not arrived.' },
-    { key: 'pp', label: 'Prepaid expenses went up (deposits paid to venues)', sign: -1, why: 'Cash went out now for shows we will expense later.' }];
 
-  // Round seeds: the lesson in every task is the idea, not the arithmetic. The exam-style question uses $500,000, $80,000,
-  // $30,000 and $20,000, so the profit-to-cash seeds avoid $500,000 of net income and $80,000 of depreciation.
-  const SEED = { n: [1000, 2000, 3000, 4000], p: [40, 50, 60, 75, 80], life: [4, 5, 6], perYear: [10000, 20000, 25000, 30000],
-    NI3: [400000, 600000, 700000, 800000, 900000], dep: [60000, 90000, 120000], dr: [100000, 150000, 200000, 250000, 300000],
-    ar: [50000, 100000, 150000], pp: [40000, 50000, 60000, 70000],
-    ocf: [400000, 500000, 600000, 700000, 800000, 900000, 1000000, 1200000], niShare: [0.5, 0.6, 0.7, 0.8],
-    NI5: [400000, 500000, 600000, 800000, 1000000], hi: [1.2, 1.25, 1.5, 1.6, 1.8], lo: [0.4, 0.5, 0.6] };
+  // Answers on the reading (12,000; 240,000; 270,000; 150,000; 1.2), the worked examples and the exam-style check never come up.
+  const AVOID = [12000, 240000, 270000, 150000, 125000, 91000, 80000, 70000, 630000];
+  const KIND = { ar: 'asset', pp: 'asset', dr: 'liability', ap: 'liability' };
+  const NAME = { ar: 'Receivables', pp: 'Prepaid expenses', dr: 'Deferred revenue', ap: 'Payables' };
+  const eff = (c) => (KIND[c.key] === 'asset' ? -1 : 1) * c.dir * c.amt;
 
   function buildTasks(rng, h) {
-    const T = [], P = (a) => h.pick(rng, a);
-    { const n = P(SEED.n), p = P(SEED.p);
-      T.push({ id: 't1', n, p, cash: n * p, answer: n * p, decision: 'zero' }); }
-    { const life = P(SEED.life), E = life * P(SEED.perYear);
-      T.push({ id: 't2', E, life, answer: E / life, decision: 'full' }); }
-    { const NI = P(SEED.NI3), v = [0, P(SEED.dep), P(SEED.dr), P(SEED.ar), P(SEED.pp)];
-      const eff = v.map((x, i) => (i === 0 ? 0 : x * ROWS3[i].sign));
-      T.push({ id: 't3', NI, v, eff, answer: NI + eff.reduce((a, b) => a + b, 0) }); }
-    { const ocf = P(SEED.ocf); let capex = h.between(rng, 100000, ocf - 100000, 50000); if (capex * 2 === ocf) capex += 50000;
-      let NI = h.round(ocf * P(SEED.niShare), 10000);
-      if (NI === 2 * capex) NI += ocf >= 1000000 ? 100000 : 50000;   // keeps "net income − capital spending" distinct from "capital spending"
-      T.push({ id: 't4', ocf, capex, NI, answer: ocf - capex }); }
-    { const NI = P(SEED.NI5), ra = P(SEED.hi), rb = P(SEED.lo);
-      const aFirst = rng() < 0.5; const A = { NI, ocf: h.round(NI * (aFirst ? ra : rb), 10000) }, B = { NI, ocf: h.round(NI * (aFirst ? rb : ra), 10000) };
-      const win = A.ocf > B.ocf ? 'a' : 'b'; const W = win === 'a' ? A : B;
-      T.push({ id: 't5', A, B, answer: W.ocf / W.NI, decision: win }); }
+    const T = [], bad = (x) => AVOID.includes(Math.round(x));
+    // cfo1: Loudhouse's year. Receivables and deferred revenue both rose (the midterm's form).
+    let c1;
+    do {
+      const life = h.pick(rng, [4, 5, 6]), dep = h.between(rng, 10000, 30000, 5000);
+      c1 = { id: 'cfo1', NI: h.between(rng, 300000, 900000, 100000), cost: dep * life, life, dep,
+        ch: [{ key: 'ar', dir: 1, amt: h.between(rng, 20000, 80000, 10000) }, { key: 'dr', dir: 1, amt: h.between(rng, 40000, 200000, 20000) }] };
+      c1.answer = c1.NI + c1.dep + c1.ch.reduce((s, c) => s + eff(c), 0);
+    } while (bad(c1.answer) || Math.abs(c1.answer / c1.NI - 1.2) < 0.005 || Math.abs(c1.answer / c1.NI - 1.5) < 0.005);
+    T.push(c1);
+    // cfo2: the smaller promoter. Receivables fell and payables rose (the final's form), and prepaid expenses rose.
+    let c2;
+    do {
+      const life = h.pick(rng, [3, 4, 5]), dep = h.between(rng, 5000, 25000, 5000);
+      c2 = { id: 'cfo2', NI: h.between(rng, 200000, 800000, 100000), cost: dep * life, life, dep,
+        ch: [{ key: 'ar', dir: -1, amt: h.between(rng, 10000, 60000, 10000) }, { key: 'ap', dir: 1, amt: h.between(rng, 10000, 50000, 5000) },
+          { key: 'pp', dir: 1, amt: h.between(rng, 10000, 40000, 5000) }] };
+      c2.answer = c2.NI + c2.dep + c2.ch.reduce((s, c) => s + eff(c), 0);
+    } while (bad(c2.answer) || c2.dep === 12000 || c2.NI === c1.NI);
+    T.push(c2);
+    // fcf1: Loudhouse's free cash flow, from its cash from operations in cfo1
+    { let capex; do { capex = h.between(rng, 100000, Math.min(300000, Math.floor((c1.answer - 100000) / 50000) * 50000), 50000); } while (bad(c1.answer - capex) || c1.answer - capex === 45000);
+      T.push({ id: 'fcf1', NI: c1.NI, CFO: c1.answer, capex, answer: c1.answer - capex }); }
+    // fcf2: the smaller promoter's free cash flow against its yearly loan payment, at least 20% away either way
+    { let capex; do { capex = h.between(rng, 50000, Math.min(400000, Math.floor((c2.answer - 100000) / 50000) * 50000), 50000); } while (bad(c2.answer - capex) || [120000, 50000].includes(c2.answer - capex));
+      const F = c2.answer - capex, yes = rng() < 0.5;
+      const L = Math.round(F * (yes ? h.pick(rng, [0.6, 0.7, 0.8]) : h.pick(rng, [1.25, 1.4, 1.6])) / 10000) * 10000;
+      T.push({ id: 'fcf2', NI: c2.NI, CFO: c2.answer, capex, loan: L, answer: F, decision: F >= L ? 'yes' : 'no' }); }
+    // cc1: Loudhouse's cash conversion, from cfo1
+    T.push({ id: 'cc1', NI: c1.NI, CFO: c1.answer, answer: c1.answer / c1.NI });
+    // cc2: two venues, same net income, one ratio well above 1 and one well below
+    { const NI = h.between(rng, 300000, 800000, 100000), hi = h.pick(rng, [1.3, 1.4, 1.6, 1.8]), lo = h.pick(rng, [0.4, 0.5, 0.6, 0.7]);
+      const northHi = rng() < 0.5, rn = northHi ? hi : lo, rs = northHi ? lo : hi;
+      T.push({ id: 'cc2', NI, north: Math.round(NI * rn), south: Math.round(NI * rs), rn, rs, answer: rn, decision: northHi ? 'north' : 'south' }); }
     return T;
   }
-  const m = (x) => root.DeskEngine.h.money(x);
-  const num = (x) => x.toLocaleString('en-US');
-  const ratio = (x) => String(Math.round(x * 100) / 100);
-  const tbl = (cap, head, rows) => `<div class="tw"><table class="cf"><caption>${cap}</caption><thead><tr>${head.map((x, i) => `<th scope="col"${i === 0 ? ' style="text-align:left"' : ''}>${x}</th>`).join('')}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((x, i) => `<td${i === 0 ? ' class="lbl"' : ''}>${x}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 
-  function taskView(t, L, h) {
-    if (t.id === 't1') return { title: 'Ticket sales', place: 'Loudhouse Live is promoting a spring concert at a 4,000-seat arena.',
-      body: `<p>In November and December, fans buy <b>${num(t.n)} tickets</b> at <b>${m(t.p)}</b> each. The show is in <b>March</b>. Loudhouse’s year ends December 31.</p>`,
-      example: `<p>A comedy club sells 500 tickets at $20 in October for a show on November 15. Its year ends December 31.</p>
-        <p>Cash this year: 500 × $20 = $10,000, paid in October.</p>
-        <p>Revenue this year: $10,000, because the show took place on November 15, before the year ended.</p>`,
-      parts: [{ field: 'value' }, { field: 'choice' }],
-      value: { label: '1. How much cash came in from these tickets this year?', help: '' },
-      choice: { legend: '2. How much revenue does Loudhouse record this year?', options: [['zero', '$0'], ['full', `${m(t.cash)}, all of it`], ['half', `Half of it, ${m(t.cash / 2)}`]] } };
-    if (t.id === 't2') return { title: 'The sound system', place: 'The company’s old speakers finally gave out.',
-      body: `<p>On January 2, Loudhouse pays <b>${m(t.E)}</b> in cash for a touring sound system that will last <b>${t.life} years</b>. The accountants spread its cost evenly over those years (straight-line depreciation).</p>
-        <p class="formula">depreciation each year = cost ÷ years of use</p>`,
-      example: `<p>A café pays $36,000 for an espresso machine that lasts 3 years.</p>
-        <p>Depreciation each year: $36,000 ÷ 3 = $12,000.</p>
-        <p>Cash out in year 2: $0. The café paid for the machine in full in year 1.</p>`,
-      parts: [{ field: 'value' }, { field: 'choice' }],
-      value: { label: '1. How much depreciation expense hits this year’s income statement?', help: '' },
-      choice: { legend: '2. How much cash left the business this year for the sound system?', options: [['full', m(t.E)], ['dep', `${m(t.E / t.life)}, the same as the expense`], ['zero', '$0']] } };
-    if (t.id === 't3') {
-      const rows = L.rows || [];
-      const body = ROWS3.slice(1).map((r, j) => { const i = j + 1;
-        return `<tr><td class="lbl">${r.label}</td><td>${m(t.v[i])}</td><td><label class="sr-only" for="r${i}">Effect on cash, ${r.label}</label><input id="r${i}" class="rowin" data-row="${i}" inputmode="decimal" autocomplete="off" value="${rows[i] ? String(rows[i]).replace(/"/g, '') : ''}"><span class="mark" id="mk${i}"></span></td></tr>`; }).join('');
-      return { title: 'Profit to cash', place: 'Kirsten, the controller, is preparing the year-end numbers.',
-        body: `<p>Loudhouse earned <b>${m(t.NI)}</b> of net income this year. Four other things changed. For each one, type its effect on cash: a positive number if it adds cash compared with profit, a negative number if it takes cash away.</p>
-          <p class="formula">cash from operations = net income + the four effects on cash</p>`,
-        example: `<p>Net income is $200,000.</p>
-          <p>Depreciation of $40,000 lowered profit but used no cash: +$40,000.</p>
-          <p>Customers owe $10,000 more than last year: −$10,000.</p>
-          <p>Cash from operations = $200,000 + $40,000 − $10,000 = $230,000.</p>`,
-        table: `<div class="tw"><table class="cf"><caption>From net income to cash from operations</caption><thead><tr><th scope="col" style="text-align:left">What changed</th><th scope="col">Amount</th><th scope="col">Effect on cash</th></tr></thead><tbody>
-          <tr><td class="lbl"><b>Net income</b></td><td>${m(t.NI)}</td><td><input value="${m(t.NI).replace('−', '-')}" readonly aria-label="Net income"></td></tr>${body}</tbody>
-          <tfoot><tr class="total hl"><td class="lbl" colspan="2"><b>Cash from operations</b> (net income + the four effects on cash)</td><td id="rowTotal"><b>${m(t.NI)}</b></td></tr></tfoot></table></div>
-          <p class="small">Start a negative effect with a minus sign, like −5,000.</p>`,
-        onRows: (rs, $) => { let s = t.NI; for (let i = 1; i <= 4; i++) { const v = h.parseMoney(rs[i]); if (isFinite(v)) s += v; } $('#rowTotal').innerHTML = '<b>' + m(s) + '</b>'; },
-        helpLabels: ['Show me the first row', 'Show me every row'] };
-    }
-    if (t.id === 't4') return { title: 'Free cash flow', place: 'The owners want to know what is left over.',
-      body: `<p>Loudhouse is thinking of buying a second promoter in the region. Last year that promoter reported:</p>
-        ${tbl('The other promoter, last year', ['Line', 'Amount'], [['Net income', m(t.NI)], ['Cash from operations', m(t.ocf)], ['Capital spending (new equipment and a venue renovation)', m(t.capex)]])}
-        <p><b>Free cash flow</b> is the cash a business has left after paying for the equipment and buildings it needs.</p>
-        <p class="formula">free cash flow = cash from operations − capital spending</p>`,
-      example: `<p>A shop has net income of $250,000, cash from operations of $300,000 and capital spending of $120,000.</p>
-        <p>Free cash flow = $300,000 − $120,000 = $180,000.</p>
-        <p>Net income is not part of the calculation.</p>`,
-      parts: [{ field: 'value' }],
-      value: { label: 'What is this promoter’s free cash flow?', help: '' } };
-    if (t.id === 't5') return { title: 'Two venues', place: 'Two small venues are for sale, and each reports the same profit.',
-      body: `${tbl('The two venues, last year', ['Venue', 'Net income', 'Cash from operations'], [['Venue A', m(t.A.NI), m(t.A.ocf)], ['Venue B', m(t.B.NI), m(t.B.ocf)]])}
-        <p>Analysts compare <b>cash conversion</b>: how many dollars of operating cash come in for each dollar of profit.</p>
-        <p class="formula">cash conversion = cash from operations ÷ net income</p>`,
-      example: `<p>Two shops each earn $100,000 of net income.</p>
-        <p>Shop 1 brings in $70,000 of cash from operations: $70,000 ÷ $100,000 = 0.7.</p>
-        <p>Shop 2 brings in $130,000: $130,000 ÷ $100,000 = 1.3. Shop 2 turns more of its profit into cash.</p>`,
-      parts: [{ field: 'choice' }, { field: 'value' }],
-      choice: { legend: '1. Which venue turns more of its profit into cash?', options: [['a', 'Venue A'], ['b', 'Venue B']] },
-      value: { label: '2. What is that venue’s cash conversion?', placeholder: '0.0', help: 'Type a ratio like 0.7, or a percentage like 70%.' } };
-  }
-  function judgeTask(t, e, h) {
-    const v = h.parseMoney(e.value);
-    if (t.id === 't1') {
-      const n = h.judgeNumber(v, t.cash, [
-        [0, 'zero', 'Question 1 asks about cash, not revenue. The fans paid this year, so the cash is in the bank now.'],
-        [t.n, 'count', `That is the number of tickets. Cash = ${num(t.n)} tickets × ${m(t.p)}.`],
-        [t.cash / 2, 'half', `That is half. Fans paid for all ${num(t.n)} tickets this year, so cash = ${num(t.n)} × ${m(t.p)}.`]],
-        { otherMsg: `Cash received = ${num(t.n)} tickets × ${m(t.p)}.` });
-      if (!n.ok) return n;
-      if (e.choice === 'zero') return { ok: true };
-      if (!e.choice) return { ok: false, code: 'nochoice', msg: 'Now pick an answer to question 2.' };
-      if (e.choice === 'full') return { ok: false, code: 'full', msg: `${m(t.cash)} is the cash, not the revenue. Revenue counts once the show takes place, and the show is in March. Until then the money is deferred revenue: Loudhouse owes the fans a concert.` };
-      return { ok: false, code: 'half', msg: 'Revenue is not split across the months. It counts once the show takes place, and the show is in March.' };
-    }
-    if (t.id === 't2') {
-      const n = h.judgeNumber(v, t.answer, [
-        [t.E, 'full', `That is the whole price. Straight-line depreciation spreads it over ${t.life} years: ${m(t.E)} ÷ ${t.life}.`],
-        [t.E * t.life, 'mult', `That multiplies. Depreciation each year = cost ÷ years of use = ${m(t.E)} ÷ ${t.life}.`]],
-        { otherMsg: `Depreciation each year = cost ÷ years of use = ${m(t.E)} ÷ ${t.life}.` });
-      if (!n.ok) return n;
-      if (e.choice === 'full') return { ok: true };
-      if (!e.choice) return { ok: false, code: 'nochoice', msg: 'Now pick an answer to question 2.' };
-      if (e.choice === 'dep') return { ok: false, code: 'dep', msg: `${m(t.answer)} is this year’s expense on the income statement. The cash moved all at once: Loudhouse paid ${m(t.E)} on January 2.` };
-      return { ok: false, code: 'zero', msg: `Cash did leave this year. Loudhouse paid ${m(t.E)} in cash on January 2.` };
-    }
-    if (t.id === 't3') { const rows = e.rows || []; const rowRes = [];
-      for (let i = 1; i <= 4; i++) { const val = h.parseMoney(rows[i]); const ex = t.eff[i];
-        rowRes[i] = h.judgeNumber(val, ex, [[-ex, 'sign', `Check the sign. ${ROWS3[i].why} So it ${ex > 0 ? 'adds to' : 'takes away from'} cash: ${ex > 0 ? '+' : '−'}${m(Math.abs(ex))}.`]],
-          { scale: Math.abs(ex), unreadable: 'Type a number in every row, like 5,000 or −5,000.', otherMsg: `Use the amount shown, ${m(t.v[i])}, with a plus or minus sign. ${ROWS3[i].why}` }); }
-      const bad = rowRes.findIndex((x, i) => i > 0 && !x.ok);
-      if (bad > 0) return { ok: false, rowRes, msg: `${ROWS3[bad].label}: ${rowRes[bad].msg}` };
-      return { ok: true, rowRes }; }
-    if (t.id === 't4') return h.judgeNumber(v, t.answer, [
-      [t.ocf + t.capex, 'add', `Capital spending is cash going out, so subtract it: ${m(t.ocf)} − ${m(t.capex)}.`],
-      [t.NI - t.capex, 'ni', `Start from cash from operations (${m(t.ocf)}), not net income. Free cash flow is about cash.`],
-      [t.ocf, 'nocapex', `That is cash from operations. Free cash flow also subtracts the ${m(t.capex)} of capital spending.`],
-      [t.capex, 'capex', `That is the capital spending itself. Free cash flow = cash from operations − capital spending = ${m(t.ocf)} − ${m(t.capex)}.`]],
-      { otherMsg: `Free cash flow = cash from operations − capital spending = ${m(t.ocf)} − ${m(t.capex)}.` });
-    if (t.id === 't5') {
-      const W = t.decision === 'a' ? t.A : t.B, Lz = t.decision === 'a' ? t.B : t.A, wn = t.decision.toUpperCase(), ln = wn === 'A' ? 'B' : 'A';
-      if (!e.choice) return { ok: false, code: 'nochoice', msg: 'Pick a venue for question 1 as well.' };
-      if (e.choice !== t.decision) return { ok: false, code: 'loser', msg: `Both venues earned ${m(W.NI)}. Venue ${wn} brought in ${m(W.ocf)} of cash from operations and Venue ${ln} only ${m(Lz.ocf)}, so Venue ${wn} turns more of its profit into cash.` };
-      const x = isFinite(v) && v > 5 ? v / 100 : v;
-      return h.judgeNumber(x, t.answer, [
-        [W.NI / W.ocf, 'flip', `That divides the wrong way round. Cash conversion = cash from operations ÷ net income = ${m(W.ocf)} ÷ ${m(W.NI)}.`],
-        [Lz.ocf / Lz.NI, 'other', `That is Venue ${ln}’s cash conversion. You picked Venue ${wn}, so use its numbers: ${m(W.ocf)} ÷ ${m(W.NI)}.`]],
-        { tol: 0.01 * t.answer, unreadable: 'Type a ratio like 0.7, or a percentage like 70%.', otherMsg: `Cash conversion = cash from operations ÷ net income = ${m(W.ocf)} ÷ ${m(W.NI)}.` });
-    }
-  }
-  function helpText(t, lvl, h) {
-    if (t.id === 't1') return lvl === 1 ? 'For cash, count what fans paid this year. For revenue, ask whether the show has happened yet.' : `Cash = ${num(t.n)} × ${m(t.p)} = ${m(t.cash)}. Revenue this year = $0, because the show is in March.`;
-    if (t.id === 't2') return lvl === 1 ? `Depreciation spreads the ${m(t.E)} cost evenly over ${t.life} years.` : `Depreciation = ${m(t.E)} ÷ ${t.life} = ${m(t.answer)}. Cash out this year = the full ${m(t.E)}, paid on January 2.`;
-    if (t.id === 't3') { const line = (i) => `${ROWS3[i].label}: ${t.eff[i] > 0 ? '+' : '−'}${m(Math.abs(t.eff[i]))}. ${ROWS3[i].why}`;
-      return lvl === 1 ? line(1) : [1, 2, 3, 4].map(line).join('<br>') + `<br>Cash from operations = ${m(t.answer)}.`; }
-    if (t.id === 't4') return lvl === 1 ? 'Start from cash from operations, then take away the capital spending.' : `${m(t.ocf)} − ${m(t.capex)} = ${m(t.answer)}.`;
-    if (t.id === 't5') { const W = t.decision === 'a' ? t.A : t.B; return lvl === 1 ? 'Both venues earned the same profit. The one with more cash from operations converts more of it.' : `Venue ${t.decision.toUpperCase()}: ${m(W.ocf)} ÷ ${m(W.NI)} = ${ratio(t.answer)}.`; }
-  }
-  function praise(t) {
-    if (t.id === 't1') return `${m(t.cash)} is in the bank, but revenue this year is $0. Until the March show, that cash is deferred revenue: Loudhouse owes the fans a concert.`;
-    if (t.id === 't2') return `Profit falls by ${m(t.answer)} this year, but cash fell by the full ${m(t.E)} on day one. Next year the expense repeats with no cash going out at all.`;
-    if (t.id === 't3') return `Cash from operations is ${m(t.answer)}, against net income of ${m(t.NI)}. This is the bridge at the top of every cash flow statement.`;
-    if (t.id === 't4') return `Free cash flow is ${m(t.answer)}: what the owners could take out, or reinvest, after paying for equipment.`;
-    if (t.id === 't5') return `Venue ${t.decision.toUpperCase()} turns each dollar of profit into ${ratio(t.answer)} dollars of operating cash. The two venues report the same profit, but they bring in very different amounts of cash.`;
-  }
-  function selfAnswer(t) {
-    if (t.id === 't3') { const rows = []; for (let i = 1; i <= 4; i++) rows[i] = String(t.eff[i]); return { rows }; }
-    if (t.id === 't5') return { value: ratio(t.answer), choice: t.decision };
-    return { value: String(Math.round(t.answer)), choice: t.decision || null };
-  }
-  function selfWrong(t) {
-    if (t.id === 't3') { const rows = []; for (let i = 1; i <= 4; i++) rows[i] = String(-t.eff[i]); return { rows }; }
-    if (t.id === 't5') return { value: ratio(t.answer), choice: t.decision === 'a' ? 'b' : 'a' };
-    return { value: String(Math.round(t.answer * 1.3 + 1000)), choice: t.decision || null };
-  }
+  const m0 = (x) => root.DeskEngine.h.money(x);
+  const r2 = (x) => String(+x.toFixed(2));
+  // A ratio typed as 1.25, 125% or 125 all mean 1.25. Every ratio on this desk is below 5.
+  const ratioIn = (h, s) => { const v = h.parseMoney(s); if (!isFinite(v)) return v; return (!/%/.test(String(s)) && Math.abs(v) >= 5) ? v / 100 : v; };
 
-  const WALK = {
-    title: 'How Kirsten finds the cash in a profit',
-    intro: `<p>One month at a food truck that Kirsten once audited:</p>
-      <ul><li>It sold <b>$10,000</b> of tacos. An office still owes <b>$2,000</b> of that.</li>
-      <li>Food, wages and fuel cost <b>$7,000</b>, all paid in cash.</li>
-      <li>It bought a <b>$3,000</b> grill, which the accountants depreciate at <b>$50</b> a month.</li></ul>`,
-    render(stage) {
-      const rows = [['Net income: $10,000 − $7,000 − $50', '$2,950', 0], ['+ Depreciation (no cash left for it)', '+$50', 1], ['− Credit sales not yet collected', '−$2,000', 2],
-        ['= Cash from operations (net income + depreciation − sales not yet collected)', '$1,000', 3], ['− The grill (capital spending)', '−$3,000', 4], ['= Free cash flow (cash from operations − the grill)', '−$2,000', 4]];
-      return `<div class="tw"><table class="cf"><caption>One month at the food truck</caption><thead><tr><th scope="col" style="text-align:left">Line</th><th scope="col">Amount</th></tr></thead><tbody>${rows.filter((r) => r[2] <= stage).map((r) => `<tr class="${r[2] === stage ? 'reveal' : ''}${r[0].startsWith('=') ? ' hl' : ''}"><td class="lbl">${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</tbody></table></div>`;
+  /* Lines for each task. The worked example uses the same function on other numbers, so the two tables always match.
+     mode: 'filled' (worked example), 'faded' (most lines given), 'own' (every line blank). full is the explained calculation,
+     used by the help ladder whatever the mode. */
+  function changeLine(c, mode) {
+    const e = eff(c), kind = KIND[c.key] === 'asset' ? 'An asset' : 'A liability', moved = c.dir > 0 ? 'rose' : 'fell';
+    const full = `${kind} ${moved}, so ${e > 0 ? 'add' : 'subtract'}`;
+    return { key: c.key, label: `${NAME[c.key]} ${moved} ${m0(c.amt)}`, full, value: e, c,
+      calc: mode === 'own' ? 'Add or subtract?' : mode === 'faded' && c.key === 'dr' ? `${kind} ${moved}` : full, input: mode === 'own' || (mode === 'faded' && c.key === 'dr') };
+  }
+  const sumExpr = (NI, dep, ch) => [m0(NI), '+ ' + m0(dep)].concat(ch.map((c) => (eff(c) > 0 ? '+ ' : '− ') + m0(c.amt))).join(' ');
+  const LINES = {
+    cfo: (x, mode) => {
+      const ch = x.ch.map((c) => changeLine(c, mode)), total = x.NI + x.dep + x.ch.reduce((s, c) => s + eff(c), 0), full = sumExpr(x.NI, x.dep, x.ch);
+      return [{ label: 'Net income', calc: 'From the income statement', full: 'From the income statement', value: x.NI },
+        { label: 'Depreciation', calc: `${m0(x.cost)} ÷ ${x.life} years, added back`, full: `${m0(x.cost)} ÷ ${x.life} years, added back`, value: x.dep, input: mode === 'own', dep: true }]
+        .concat(ch, [{ label: 'Cash from operations', total: true, value: total, input: mode !== 'filled', full,
+          calc: mode === 'filled' ? full : mode === 'faded' ? `${m0(x.NI)} + ${m0(x.dep)} − ${m0(x.ch[0].amt)} + the deferred revenue line` : 'Net income + depreciation + each change' }]);
     },
-    stages: [
-      { t: 'Start with profit', p: 'Revenue counts all $10,000 of tacos sold, paid or not. Subtract the $7,000 of costs and the $50 of depreciation: net income is $2,950.' },
-      { t: 'Add back depreciation', p: 'The $50 lowered profit, but no cash left the truck for it this month; the cash left when the grill was bought. So add it back.' },
-      { t: 'Take out the sales not yet paid', p: '$2,000 of the revenue is still owed by the office. It counts in profit but not in cash, so subtract it. (When customers owe you more, cash lags profit.)' },
-      { t: 'That is cash from operations', p: '$2,950 + $50 − $2,000 = $1,000 of cash actually came in from running the truck.' },
-      { t: 'Subtract what you spent on equipment', p: 'The $3,000 grill is <b>capital spending</b>: cash spent on things that last. Cash from operations minus capital spending is <b>free cash flow</b>: $1,000 − $3,000 = −$2,000.' },
-      { t: 'The lesson', p: 'The truck made a $2,950 profit and still has $2,000 less cash than it started with. Profit shows whether the truck earns more than it costs over time. Cash shows whether it can pay this month’s bills.' },
-    ],
+    fcf: (x, mode) => [
+      { label: 'Cash from operations', calc: 'From the cash flow statement', full: 'From the cash flow statement', value: x.CFO, input: mode === 'own', cfo: true },
+      { label: 'Capital spending', calc: x.what || 'From the cash flow statement', full: x.what || 'From the cash flow statement', value: x.capex, input: mode === 'own', capex: true },
+      { label: 'Free cash flow', calc: mode === 'own' ? 'Cash from operations − capital spending' : `${m0(x.CFO)} − ${m0(x.capex)}`,
+        full: `${m0(x.CFO)} − ${m0(x.capex)}`, value: x.CFO - x.capex, input: mode !== 'filled', fcf: true }],
+    cc1: (x, mode) => [
+      { label: 'Cash from operations', calc: 'From the cash flow statement', full: 'From the cash flow statement', value: x.CFO },
+      { label: 'Net income', calc: 'From the income statement', full: 'From the income statement', value: x.NI },
+      { label: 'Cash conversion', calc: `${m0(x.CFO)} ÷ ${m0(x.NI)}`, full: `${m0(x.CFO)} ÷ ${m0(x.NI)}`, value: x.CFO / x.NI, fmt: 'num', input: mode !== 'filled', ratio: true }],
+    cc2: (x, mode) => [
+      { label: `${x.names[0]} cash conversion`, calc: mode === 'filled' ? `${m0(x.north)} ÷ ${m0(x.NI)}` : 'Cash from operations ÷ net income',
+        full: `${m0(x.north)} ÷ ${m0(x.NI)}`, value: x.north / x.NI, fmt: 'num', input: mode !== 'filled', ratio: true, mine: 'north' },
+      { label: `${x.names[1]} cash conversion`, calc: mode === 'filled' ? `${m0(x.south)} ÷ ${m0(x.NI)}` : 'Cash from operations ÷ net income',
+        full: `${m0(x.south)} ÷ ${m0(x.NI)}`, value: x.south / x.NI, fmt: 'num', input: mode !== 'filled', ratio: true, mine: 'south' }],
+  };
+  const VENUES = ['North venue', 'South venue'];
+  // Built on first use: config.js loads before the engine, so money() is not available at load time.
+  const EXAMPLES = () => ({
+    cfo1: { cap: 'A comedy club earned $100,000. Its $40,000 sound system lasts 4 years. Receivables rose $5,000 and deferred revenue rose $20,000.',
+      lines: LINES.cfo({ NI: 100000, cost: 40000, life: 4, dep: 10000, ch: [{ key: 'ar', dir: 1, amt: 5000 }, { key: 'dr', dir: 1, amt: 20000 }] }, 'filled') },
+    cfo2: { cap: 'A theater earned $80,000. Its $30,000 lighting lasts 5 years. Receivables fell $4,000, payables rose $3,000 and prepaid expenses rose $2,000.',
+      lines: LINES.cfo({ NI: 80000, cost: 30000, life: 5, dep: 6000, ch: [{ key: 'ar', dir: -1, amt: 4000 }, { key: 'ap', dir: 1, amt: 3000 }, { key: 'pp', dir: 1, amt: 2000 }] }, 'filled') },
+    fcf1: { cap: 'The comedy club brought in $125,000 of cash from operations and spent $45,000 on a new stage.', lines: LINES.fcf({ CFO: 125000, capex: 45000 }, 'filled') },
+    fcf2: { cap: 'A booking agency earned $90,000, brought in $120,000 of cash from operations and spent $50,000 on equipment. It owes $60,000 a year on a loan.',
+      lines: LINES.fcf({ CFO: 120000, capex: 50000 }, 'filled'), after: 'Free cash flow, $70,000, is more than the $60,000 loan payment, so the agency can pay it from its own cash.' },
+    cc1: { cap: 'A jazz club earned $100,000 and brought in $150,000 of cash from operations.', lines: LINES.cc1({ CFO: 150000, NI: 100000 }, 'filled') },
+    cc2: { cap: 'Two clubs each earned $100,000. Club A brought in $110,000 of cash from operations, and Club B brought in $30,000.',
+      lines: LINES.cc2({ NI: 100000, north: 110000, south: 30000, names: ['Club A', 'Club B'] }, 'filled'),
+      after: 'Club A’s profit is better backed by cash: each dollar of profit came with $1.10 of cash, against $0.30 at Club B.' },
+  });
+
+  function linesFor(t) {
+    if (t.id === 'cfo1') return LINES.cfo(t, 'faded');
+    if (t.id === 'cfo2') return LINES.cfo(t, 'own');
+    if (t.id === 'fcf1') return LINES.fcf(Object.assign({ what: 'The new stage' }, t), 'faded');
+    if (t.id === 'fcf2') return LINES.fcf(t, 'own');
+    if (t.id === 'cc1') return LINES.cc1(t, 'faded');
+    if (t.id === 'cc2') return LINES.cc2(Object.assign({ names: VENUES }, t), 'own');
+  }
+
+  const PROBLEM = {
+    cfo1: (t) => ({ title: 'From profit to cash', place: 'The owners ask Kirsten how much cash Loudhouse brought in last year.',
+      body: `<p>Loudhouse Live earned <b>${m0(t.NI)}</b> of net income. Its <b>${m0(t.cost)}</b> sound system lasts <b>${t.life}</b> years. Sponsors owe <b>${m0(t.ch[0].amt)}</b> more than a year ago, and fans paid <b>${m0(t.ch[1].amt)}</b> for next year’s shows. What was its cash from operations?</p>` }),
+    cfo2: (t) => ({ title: 'A fall and a rise', place: 'The owners might buy a smaller promoter, and Kirsten wants to know how much cash it brings in.',
+      body: `<p>The smaller promoter earned <b>${m0(t.NI)}</b>. Its <b>${m0(t.cost)}</b> stage lasts <b>${t.life}</b> years. Its receivables fell <b>${m0(t.ch[0].amt)}</b>, its payables rose <b>${m0(t.ch[1].amt)}</b>, and its prepaid expenses rose <b>${m0(t.ch[2].amt)}</b>. What was its cash from operations?</p>` }),
+    fcf1: (t) => ({ title: 'Free cash flow', place: 'The owners want to know how much cash Loudhouse could pay out.',
+      body: `<p>Loudhouse brought in <b>${m0(t.CFO)}</b> of cash from operations and spent <b>${m0(t.capex)}</b> on a new stage. What is its free cash flow? The first two lines are done for you.</p>` }),
+    fcf2: (t) => ({ title: 'Can it pay its loan?', place: 'Back to the smaller promoter the owners might buy.',
+      body: `<p>The smaller promoter earned <b>${m0(t.NI)}</b> of net income, brought in <b>${m0(t.CFO)}</b> of cash from operations and spent <b>${m0(t.capex)}</b> on equipment. It owes <b>${m0(t.loan)}</b> a year on a loan. Can it pay from its own cash?</p>`,
+      choice: { legend: `Does free cash flow cover the ${m0(t.loan)} loan payment?`, options: [['yes', 'Yes: free cash flow is more than the payment'], ['no', 'No: free cash flow is less than the payment']] } }),
+    cc1: (t) => ({ title: 'Cash conversion', place: 'Kirsten wants one number that shows how well Loudhouse’s profit turned into cash.',
+      body: `<p>Loudhouse earned <b>${m0(t.NI)}</b> of net income and brought in <b>${m0(t.CFO)}</b> of cash from operations. What is its cash conversion? The first two lines are done for you.</p>` }),
+    cc2: (t) => ({ title: 'Two venues, same profit', place: 'Loudhouse runs two venues, and the owners ask which one is doing better.',
+      body: `<p>Each venue earned <b>${m0(t.NI)}</b> of net income. The North venue brought in <b>${m0(t.north)}</b> of cash from operations, and the South venue brought in <b>${m0(t.south)}</b>. Whose profit is better backed by cash?</p>`,
+      choice: { legend: 'Which venue’s profit is better backed by cash?', options: [['north', 'The North venue'], ['south', 'The South venue']] } }),
   };
 
+  function taskView(t, L, h) {
+    const P = PROBLEM[t.id](t), E = EXAMPLES()[t.id], lines = linesFor(t);
+    const example = h.ladder(E.lines, { filled: true, caption: E.cap }) + (E.after ? `<p>${E.after}</p>` : '');
+    const table = h.ladder(lines, { rows: L.rows, caption: 'Your turn' })
+      + (lines.some((l) => l.input && l.ratio) ? '<p class="small">Type the ratio to two decimal places, like 1.25.</p>'
+        : lines.some((l) => l.input && l.c) ? '<p class="small">Type an amount that lowers cash with a minus sign, like −5,000.</p>' : '');
+    const parts = [{ html: '', field: 'table' }];
+    if (P.choice) parts.push({ html: '', field: 'choice' });
+    return { title: P.title, place: P.place, body: P.body, example, table, parts, choice: P.choice,
+      helpLabels: ['Show me the first blank', 'Show me every line'] };
+  }
+
+  const RULE = { 'asset:1': 'An asset that rises takes cash away', 'asset:-1': 'An asset that falls brings cash in',
+    'liability:1': 'A liability that rises keeps cash in the business', 'liability:-1': 'A liability that falls uses cash' };
+  // Common slips, per line, phrased with the student's own numbers.
+  function diagFor(t, line) {
+    const D = [];
+    if (line.dep) D.push([t.cost, 'cost', `That is the full price. Spread it over the years: ${m0(t.cost)} ÷ ${t.life}.`],
+      [t.cost * t.life, 'times', `That multiplies. Divide the price by the years: ${m0(t.cost)} ÷ ${t.life}.`],
+      [-t.dep, 'sign', `Depreciation is added back, so type it as a positive amount: ${m0(t.dep)}.`]);
+    if (line.c) { const c = line.c, k = KIND[c.key] + ':' + c.dir;
+      D.push([-line.value, 'sign', `${NAME[c.key]} ${c.key === 'dr' ? 'is' : 'are'} ${KIND[c.key] === 'asset' ? 'an asset' : 'a liability'}. ${RULE[k]}, so type ${m0(line.value)}.`]); }
+    if (line.total) { const all = t.NI + t.dep + t.ch.reduce((s, c) => s + c.amt, 0), noNI = line.value - t.NI;
+      D.push([all, 'alladd', `That adds every change. Subtract the ones that take cash away. ${line.full}.`],
+        [noNI, 'noni', `Start from net income. ${line.full}.`], [line.value - 2 * t.dep, 'depsub', `Add depreciation back, don’t subtract it. ${line.full}.`]); }
+    if (line.cfo) D.push([t.NI, 'ni', `That is net income. Free cash flow starts from cash from operations, ${m0(t.CFO)}.`]);
+    if (line.fcf) D.push([t.CFO + t.capex, 'add', 'Subtract capital spending, don’t add it.'],
+      [t.NI - t.capex, 'ni', `Start from cash from operations, ${m0(t.CFO)}, not net income.`], [t.CFO, 'nocapex', `Subtract capital spending: ${m0(t.CFO)} − ${m0(t.capex)}.`],
+      [t.capex, 'capex', 'That is capital spending itself. Subtract it from cash from operations.']);
+    if (line.ratio) { const cfo = line.mine ? t[line.mine] : t.CFO, other = line.mine === 'north' ? t.south : line.mine === 'south' ? t.north : null;
+      D.push([t.NI / cfo, 'flip', `That is net income ÷ cash from operations. Put cash from operations on top: ${m0(cfo)} ÷ ${m0(t.NI)}.`]);
+      if (other != null) D.push([other / t.NI, 'other', 'That is the other venue’s ratio. Use this venue’s own cash from operations.']); }
+    return D;
+  }
+
+  const plain = (s) => String(s).replace(/<[^>]+>/g, '');
+  function judgeTask(t, e, h) {
+    const lines = linesFor(t), rows = e.rows || [], rowRes = [];
+    lines.forEach((l, i) => {
+      if (!l.input) return;
+      const opts = l.ratio ? { tol: 0.006, scale: Math.abs(l.value), unreadable: 'Type the ratio as a number, like 1.25.', closeMsg: 'Close. Keep two decimal places.', otherMsg: `${plain(l.full)}.` }
+        : { tol: 2, scale: Math.abs(l.value), unreadable: 'Type a dollar amount, like 25,000 or −5,000.',
+          otherMsg: l.cfo || l.capex ? `Use the ${l.cfo ? 'cash from operations' : 'capital spending'} given in the problem, ${m0(l.value)}.` : `${plain(l.full)}.` };
+      const v = l.ratio ? ratioIn(h, rows[i]) : h.parseMoney(rows[i]);
+      rowRes[i] = h.judgeNumber(v, l.value, diagFor(t, l), opts);
+    });
+    const bad = rowRes.findIndex((x) => x && !x.ok);
+    if (bad >= 0) return { ok: false, rowRes, code: rowRes[bad].code, msg: `${plain(lines[bad].label)}: ${rowRes[bad].msg}` };
+    if (t.decision && e.choice !== t.decision) {
+      if (!e.choice) return { ok: false, rowRes, code: 'nochoice', msg: 'Now answer the question under the table.' };
+      return { ok: false, rowRes, code: 'choice', msg: t.id === 'fcf2' ? `Compare free cash flow, ${m0(t.answer)}, with the ${m0(t.loan)} loan payment. Which is bigger?`
+        : `Compare the two ratios, ${r2(t.rn)} and ${r2(t.rs)}. The higher one means more cash came in for each dollar of profit.` };
+    }
+    return { ok: true, rowRes };
+  }
+
+  const showVal = (l) => (l.ratio ? r2(l.value) : m0(l.value));
+  function helpText(t, lvl) {
+    const lines = linesFor(t), blanks = lines.filter((l) => l.input);
+    const say = (l) => `${plain(l.label)}: ${plain(l.full)} = ${showVal(l)}`;
+    return lvl === 1 ? say(blanks[0]) : lines.map(say).join('<br>');
+  }
+  function praise(t) {
+    if (t.id === 'cfo1') return `Loudhouse earned ${m0(t.NI)} of profit and brought in ${m0(t.answer)} of cash from running the business.`;
+    if (t.id === 'cfo2') return `The smaller promoter brought in ${m0(t.answer)} of cash. The fall in receivables added cash, because sponsors paid down what they owed.`;
+    if (t.id === 'fcf1') return `After the new stage, Loudhouse has ${m0(t.answer)} it could pay its owners or use to repay loans without borrowing.`;
+    if (t.id === 'fcf2') return `Free cash flow of ${m0(t.answer)} ${t.decision === 'yes' ? 'covers' : 'does not cover'} the ${m0(t.loan)} loan payment${t.decision === 'yes' ? '.' : ', so the promoter would have to borrow or cut spending to pay it.'}`;
+    if (t.id === 'cc1') return `Each dollar of Loudhouse’s profit came with about $${t.answer.toFixed(2)} of cash${t.answer >= 1 ? ', so its profit is well backed by cash.' : ', so part of its profit has not arrived as cash yet.'}`;
+    if (t.id === 'cc2') return `The ${t.decision === 'north' ? 'North' : 'South'} venue’s profit is better backed by cash. The other venue’s customers may be paying slowly.`;
+  }
+  function selfAnswer(t) {
+    const rows = []; linesFor(t).forEach((l, i) => { if (l.input) rows[i] = l.ratio ? r2(l.value) : String(Math.round(l.value)); });
+    return { rows, choice: t.decision || null };
+  }
+  function selfWrong(t) {
+    const rows = []; linesFor(t).forEach((l, i) => { if (l.input) rows[i] = l.ratio ? r2(l.value * 1.3) : String(Math.round(l.value * 1.3 + 7)); });
+    return { rows, choice: t.decision || null };
+  }
+
   root.DESK = {
-    app: 'finan4-u2-cash-desk', version: 3, seedVersion: 2, salt: 'rize-finan4-u2-cash:5b81e3', points: 20,
-    storageKey: 'rize-finan4-u2-cash-v1', filePrefix: 'CashDesk',
+    app: 'finan4-u2-cash-desk', version: 4, seedVersion: 3, salt: 'rize-finan4-u2-cash:5b81e3', points: 20,
+    storageKey: 'rize-finan4-u2-cash-v3', filePrefix: 'CashDesk',
     verifyUrl: 'https://rizecomputerscience.github.io/finan4-cash-desk/verify.html',
+    calcPlaceholder: '450000+20000-30000',
     story: { title: 'The Cash Desk', kicker: 'Corporate Finance, Unit 2', company: 'Loudhouse Live', team: 'Finance Team',
-      from: 'Kirsten Sandoval', fromTitle: 'Controller',
-      dek: 'You have joined the finance team at Loudhouse Live, a regional concert promoter. The business is profitable, but the owners keep asking why the bank balance does not match the profit. Kirsten Sandoval, the controller, wants you to find out.',
-      whatBox: '<b>Profit and cash are not the same thing.</b> Profit counts a sale when it is earned and an expense when it is used up. Cash counts money only when it actually moves. A promoter that sells tickets months before a show can be flush with cash and not yet have earned a dollar of it.',
-      stepsLine: 'There are eleven steps: a worked example, five problems with three one-question checks between them, one exam-style question, and a short note to Kirsten.' },
-    steps: STEPS, quiz: QUIZ, walk: WALK, buildTasks, taskView, judgeTask, helpText, praise, selfAnswer, selfWrong,
+      from: 'Kirsten Sandoval', fromTitle: 'controller, Loudhouse Live',
+      dek: 'Loudhouse Live, a regional concert promoter, made a profit last year. Its owners want to know how much cash the business can actually spend, and whether a smaller promoter they might buy could pay its own loan. Kirsten Sandoval, the controller, finds the cash behind the profit, and you work through each step with her.',
+      whatBox: '',
+      stepsLine: 'Nine short steps. Each shows a worked example in the same table you fill in, then you do the same calculation with your own numbers.' },
+    steps: STEPS, quiz: QUIZ, walk: null, buildTasks, taskView, judgeTask, helpText, praise, selfAnswer, selfWrong,
     note: { title: 'A note for the owners', label: 'Your note to Kirsten', minWords: 30, receiptHeading: 'Note to the controller',
-      prompt: 'Kirsten asks you to explain, for the owners, why a profitable promoter can have a bank balance that does not match its profit. Use at least two of the things you worked on today in your explanation.' },
-    calcPlaceholder: '500*20',
-    calcHint: 'Type or tap. For example, 500*20 is 500 tickets at $20, and 36000/3 spreads a $36,000 cost over three years.',
+      prompt: 'Write Kirsten a note for the owners. How much cash could Loudhouse spend last year, why is that different from its profit, and could the smaller promoter pay its loan? Use your own numbers.' },
   };
 })(typeof window !== 'undefined' ? window : globalThis);
