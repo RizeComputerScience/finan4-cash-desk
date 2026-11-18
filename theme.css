@@ -1,0 +1,65 @@
+/* The Cash Desk theme (FINAN IV Unit 2), 2026-11-18. Loaded after desk.css; changes the look only.
+   A two-color gig poster and a backstage pass: magenta and riso blue ink on lilac poster stock, a marquee face for
+   the title printed slightly off register, a halftone wash, steps as wristbands, the memo as a laminated pass on a
+   lanyard. Dark mode is the room before the lights come up. */
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Archivo:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&display=swap');
+:root{
+  --bg:#F7F1F6;--surface:#FFFFFF;--panel:#F1E5EF;--line:#E0CDDC;--line-strong:#7E5F79;
+  --ink:#1E0F2B;--muted:#594566;--brand:#A3125E;--brand-ink:#FFFFFF;--brand-tint:#F9E2EF;
+  --ok:#1D6B43;--ok-tint:#DFF1E6;--bad:#AE231B;--bad-tint:#FBE5E2;--hint:#2F3FA8;--hint-tint:#E6E8FA;--focus:#1E0F2B;--hl:#FFE7A6;
+  --done:#2E3FCF;--done-ink:#FFFFFF;--pink:#FF4FA8;--blue:#2E3FCF;--amber:#FFB21A;--dots:rgba(163,18,94,.075);
+  --receipt-frame:#A3125E;--receipt-paper:#FCF7FB;
+  --serif:'Archivo','Helvetica Neue',Arial,sans-serif;--display:'Bungee','Archivo Black',Impact,sans-serif;}
+:root[data-theme="dark"]{
+  --bg:#170B23;--surface:#211131;--panel:#2B183F;--line:#3E2758;--line-strong:#9C82B4;
+  --ink:#F7EDF8;--muted:#C9B5D4;--brand:#FF7FC4;--brand-ink:#2A0A1C;--brand-tint:#3A1533;
+  --ok:#7DD49A;--ok-tint:#15301F;--bad:#FF8D84;--bad-tint:#42201E;--hint:#B3BDFF;--hint-tint:#1F2049;--focus:#FF7FC4;--hl:#4A3812;
+  --done:#9AA6FF;--done-ink:#170B23;--pink:#FF5CB4;--blue:#7F8CFF;--amber:#FFC14D;--dots:rgba(255,127,196,.06);}
+
+/* poster stock with a halftone wash */
+body{font-size:17.5px;background-color:var(--bg);background-image:radial-gradient(var(--dots) 1.6px,transparent 1.9px);background-size:9px 9px;
+  display:flex;flex-direction:column;min-height:100vh}
+header.bar{order:-2;background:var(--bg);border-bottom:4px solid var(--pink);box-shadow:0 4px 0 var(--bg),0 7px 0 var(--blue)}
+.brand{font-style:normal}
+.brand b{font:400 18px var(--display);letter-spacing:.02em}
+
+/* header art: only on the first screen */
+.desk-art{order:-1;display:none;width:calc(100% - 2.2rem);max-width:calc(820px - 2.2rem);height:auto;margin:1.8rem auto 0;border-radius:6px;box-shadow:6px 6px 0 var(--pink)}
+body:has(#startBox) .desk-art{display:block}
+@media (max-width:600px){.desk-art{aspect-ratio:2.2/1;object-fit:cover;object-position:50% 100%;box-shadow:4px 4px 0 var(--pink)}}
+
+/* steps as wristbands; a finished step gets the all-access blue */
+nav.steps{padding-top:.6rem}
+nav.steps button{border-radius:3px;font:600 14px var(--serif);border:1.5px solid var(--line-strong);padding:.22rem .7rem}
+nav.steps button.done::before{content:"\2713\00a0";content:"\2713\00a0" / "done: "}
+nav.steps button[aria-current="step"]{outline:2.5px solid var(--brand);outline-offset:2px}
+
+/* type: the headliner, printed a hair off register */
+h1{font:400 clamp(38px,6.6vw,62px)/1.02 var(--display);color:var(--brand);letter-spacing:.01em;text-shadow:3px 3px 0 rgba(46,63,207,.28)}
+:root[data-theme="dark"] h1{text-shadow:3px 3px 0 rgba(127,140,255,.3)}
+h2{font:800 28px/1.15 var(--serif);letter-spacing:-.015em}
+.kicker{font-style:normal;font-weight:700;font-size:16px;color:var(--muted)}
+.dek{font-size:19px;font-style:normal;color:var(--ink);max-width:36em}
+.points{font:400 46px/1 var(--display);color:var(--brand)}
+
+/* cards: the box is the set list taped up backstage; the memo is a laminated pass */
+.box{border-radius:4px;background:var(--panel);border-left:6px solid var(--blue)}
+.memo{position:relative;border-radius:16px;border:2px solid var(--ink);border-top:30px solid var(--brand);box-shadow:5px 5px 0 var(--line)}
+.memo::before{content:"";position:absolute;top:-21px;left:50%;width:64px;height:11px;margin-left:-32px;border-radius:6px;background:var(--bg)}
+.stamp{border-radius:3px;color:var(--brand)}
+.btn,.btn-calc{border-radius:4px}
+.btn-quiet{border-radius:4px}
+.btn{font-weight:800;letter-spacing:.01em;box-shadow:3px 3px 0 var(--ink)}
+.btn.secondary{box-shadow:none}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.choice span{border-radius:4px}
+
+/* tables: a tour sheet, pink rule under the headings */
+table.cf th{font:700 14px var(--serif);color:var(--ink);border-bottom:3px solid var(--pink)}
+table.cf caption{font-style:normal;font-weight:600}
+table.cf td.lbl{font-family:var(--serif)}
+table.cf tfoot tr.total td{border-top:2.5px solid var(--ink)}
+.formula{border-left:4px solid var(--pink);border-radius:0 4px 4px 0}
+.calc-strip{border-left-color:var(--blue)}
+details.example{border-left-color:var(--pink);border-radius:4px}
+@media (prefers-reduced-motion:reduce){.btn:active{transform:none}}

@@ -9,7 +9,10 @@
    - Depreciation (cost ÷ years) is a line inside the cash-from-operations table, not a step of its own.
    - Cut from the desk: the walkthrough, the ticket-sales and sound-system steps (their ideas now sit inside the bridge and the
      quick check), two of the three quick checks.
-   The previous version is in v2-archive/. seedVersion 3 and version 4: progress and receipts from v3 do not carry over. */
+   The previous version is in v2-archive/. seedVersion 3 and version 4: progress and receipts from v3 do not carry over.
+   2026-11-18 (peer review): wording only, to use the industry names the reading now introduces (operating cash flow,
+   working capital changes, non-cash expense, free cash flow). Steps, logic and version unchanged; pre-edit copy in
+   v-archive-2026-11-18/. */
 (function (root) {
   'use strict';
   const QUIZ = [
@@ -33,9 +36,9 @@
   ];
 
   const STEPS = [
-    { id: 'cfo1', label: 'Profit to cash', kind: 'task' },
+    { id: 'cfo1', label: 'Operating cash flow', kind: 'task' },
     { id: 'q1', label: 'Quick check', kind: 'check', quiz: 0 },
-    { id: 'cfo2', label: 'A fall and a rise', kind: 'task' },
+    { id: 'cfo2', label: 'Working capital changes', kind: 'task' },
     { id: 'fcf1', label: 'Free cash flow', kind: 'task' },
     { id: 'fcf2', label: 'Can it pay its loan?', kind: 'task' },
     { id: 'cc1', label: 'Cash conversion', kind: 'task' },
@@ -152,9 +155,9 @@
   }
 
   const PROBLEM = {
-    cfo1: (t) => ({ title: 'From profit to cash', place: 'The owners ask Kirsten how much cash Loudhouse brought in last year.',
-      body: `<p>Loudhouse Live earned <b>${m0(t.NI)}</b> of net income. Its <b>${m0(t.cost)}</b> sound system lasts <b>${t.life}</b> years. Sponsors owe <b>${m0(t.ch[0].amt)}</b> more than a year ago, and fans paid <b>${m0(t.ch[1].amt)}</b> for next year’s shows. What was its cash from operations?</p>` }),
-    cfo2: (t) => ({ title: 'A fall and a rise', place: 'The owners might buy a smaller promoter, and Kirsten wants to know how much cash it brings in.',
+    cfo1: (t) => ({ title: 'From profit to operating cash flow', place: 'The owners ask Kirsten how much cash Loudhouse brought in last year.',
+      body: `<p>Loudhouse Live earned <b>${m0(t.NI)}</b> of net income. Its <b>${m0(t.cost)}</b> sound system lasts <b>${t.life}</b> years. Sponsors owe <b>${m0(t.ch[0].amt)}</b> more than a year ago, and fans paid <b>${m0(t.ch[1].amt)}</b> for next year’s shows. What was its cash from operations, its operating cash flow?</p>` }),
+    cfo2: (t) => ({ title: 'Three working capital changes', place: 'The owners might buy a smaller promoter, and Kirsten wants to know how much cash it brings in.',
       body: `<p>The smaller promoter earned <b>${m0(t.NI)}</b>. Its <b>${m0(t.cost)}</b> stage lasts <b>${t.life}</b> years. Its receivables fell <b>${m0(t.ch[0].amt)}</b>, its payables rose <b>${m0(t.ch[1].amt)}</b>, and its prepaid expenses rose <b>${m0(t.ch[2].amt)}</b>. What was its cash from operations?</p>` }),
     fcf1: (t) => ({ title: 'Free cash flow', place: 'The owners want to know how much cash Loudhouse could pay out.',
       body: `<p>Loudhouse brought in <b>${m0(t.CFO)}</b> of cash from operations and spent <b>${m0(t.capex)}</b> on a new stage. What is its free cash flow? The first two lines are done for you.</p>` }),
@@ -187,7 +190,7 @@
     const D = [];
     if (line.dep) D.push([t.cost, 'cost', `That is the full price. Spread it over the years: ${m0(t.cost)} ÷ ${t.life}.`],
       [t.cost * t.life, 'times', `That multiplies. Divide the price by the years: ${m0(t.cost)} ÷ ${t.life}.`],
-      [-t.dep, 'sign', `Depreciation is added back, so type it as a positive amount: ${m0(t.dep)}.`]);
+      [-t.dep, 'sign', `Depreciation is a non-cash expense that is added back, so type it as a positive amount: ${m0(t.dep)}.`]);
     if (line.c) { const c = line.c, k = KIND[c.key] + ':' + c.dir;
       D.push([-line.value, 'sign', `${NAME[c.key]} ${c.key === 'dr' ? 'is' : 'are'} ${KIND[c.key] === 'asset' ? 'an asset' : 'a liability'}. ${RULE[k]}, so type ${m0(line.value)}.`]); }
     if (line.total) { const all = t.NI + t.dep + t.ch.reduce((s, c) => s + c.amt, 0), noNI = line.value - t.NI;
@@ -232,7 +235,7 @@
   }
   function praise(t) {
     if (t.id === 'cfo1') return `Loudhouse earned ${m0(t.NI)} of profit and brought in ${m0(t.answer)} of cash from running the business.`;
-    if (t.id === 'cfo2') return `The smaller promoter brought in ${m0(t.answer)} of cash. The fall in receivables added cash, because sponsors paid down what they owed.`;
+    if (t.id === 'cfo2') return `The smaller promoter brought in ${m0(t.answer)} of cash. Of its working capital changes, the fall in receivables added cash, because sponsors paid down what they owed.`;
     if (t.id === 'fcf1') return `After the new stage, Loudhouse has ${m0(t.answer)} it could pay its owners or use to repay loans without borrowing.`;
     if (t.id === 'fcf2') return `Free cash flow of ${m0(t.answer)} ${t.decision === 'yes' ? 'covers' : 'does not cover'} the ${m0(t.loan)} loan payment${t.decision === 'yes' ? '.' : ', so the promoter would have to borrow or cut spending to pay it.'}`;
     if (t.id === 'cc1') return `Each dollar of Loudhouse’s profit came with about $${t.answer.toFixed(2)} of cash${t.answer >= 1 ? ', so its profit is well backed by cash.' : ', so part of its profit has not arrived as cash yet.'}`;
@@ -254,11 +257,11 @@
     calcPlaceholder: '450000+20000-30000',
     story: { title: 'The Cash Desk', kicker: 'Corporate Finance, Unit 2', company: 'Loudhouse Live', team: 'Finance Team',
       from: 'Kirsten Sandoval', fromTitle: 'controller, Loudhouse Live',
-      dek: 'Loudhouse Live, a regional concert promoter, made a profit last year. Its owners want to know how much cash the business can actually spend, and whether a smaller promoter they might buy could pay its own loan. Kirsten Sandoval, the controller, finds the cash behind the profit, and you work through each step with her.',
+      dek: 'Loudhouse Live, a regional concert promoter, made a profit last year. Its owners want to know its free cash flow, the cash the business can actually spend, and whether a smaller promoter they might buy could pay its own loan. Kirsten Sandoval, the controller, works from the profit to the cash behind it, and you work through each step with her.',
       whatBox: '',
       stepsLine: 'Nine short steps. Each shows a worked example in the same table you fill in, then you do the same calculation with your own numbers.' },
     steps: STEPS, quiz: QUIZ, walk: null, buildTasks, taskView, judgeTask, helpText, praise, selfAnswer, selfWrong,
     note: { title: 'A note for the owners', label: 'Your note to Kirsten', minWords: 30, receiptHeading: 'Note to the controller',
-      prompt: 'Write Kirsten a note for the owners. How much cash could Loudhouse spend last year, why is that different from its profit, and could the smaller promoter pay its loan? Use your own numbers.' },
+      prompt: 'Write Kirsten a note for the owners. What was Loudhouse’s free cash flow last year, why is it different from its profit, and could the smaller promoter pay its loan? Use your own numbers.' },
   };
 })(typeof window !== 'undefined' ? window : globalThis);
